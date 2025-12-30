@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if profile %}{{ profile.name }}'s Portfolio{% else %}My Portfolio{% endif %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            color: #e0e0e0;
+            background: 
+                linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%),
+                radial-gradient(circle at 25% 25%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(0, 123, 255, 0.1) 0%, transparent 50%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            position: relative;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -2;
+        }
+        header {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0, 123, 255, 0.3);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        nav h1 {
+            margin: 0;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00d4ff, #007bff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        nav h1::before {
+            content: '\f2d2'; /* brain icon */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            margin-right: 10px;
+            color: #00d4ff;
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+        }
+        nav ul li {
+            margin-left: 30px;
+        }
+        nav ul li a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+        nav ul li a:hover {
+            color: #00d4ff;
+        }
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: linear-gradient(45deg, #00d4ff, #007bff);
+            transition: width 0.3s ease;
+        }
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+        section {
+            padding: 100px 20px 80px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        #hero {
+            text-align: center;
+            padding: 100px 20px;
+            background: radial-gradient(circle, rgba(0, 123, 255, 0.1) 0%, transparent 70%);
+            border-radius: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        #hero img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 3px solid #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        #hero img:hover {
+            transform: scale(1.05);
+        }
+        #hero h1 {
+            font-size: 3rem;
+            margin: 0 0 10px;
+            background: linear-gradient(45deg, #00d4ff, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        #hero p {
+            font-size: 1.2rem;
+            color: #b0b0b0;
+            margin: 0;
+        }
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #ffffff;
+            position: relative;
+            text-align: center;
+        }
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(45deg, #00d4ff, #007bff);
+            border-radius: 2px;
+        }
+        .section-content {
+            background: rgba(26, 26, 46, 0.8);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+        }
+        .skill-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+        .skill {
+            background: linear-gradient(45deg, #00d4ff, #007bff);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(0, 212, 255, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .skill:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 212, 255, 0.5);
+        }
+        .experience-item, .project-item {
+            background: rgba(42, 42, 68, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #00d4ff;
+            transition: transform 0.3s ease;
+        }
+        .experience-item:hover, .project-item:hover {
+            transform: translateX(5px);
+        }
+        .experience-item h3, .project-item h3 {
+            margin: 0 0 10px;
+            color: #00d4ff;
+        }
+        .experience-item p, .project-item p {
+            margin: 5px 0;
+            color: #b0b0b0;
+        }
+        .project-item a {
+            color: #00d4ff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .project-item a:hover {
+            text-decoration: underline;
+        }
+        footer {
+            background: rgba(15, 15, 35, 0.9);
+            color: #b0b0b0;
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid rgba(0, 123, 255, 0.3);
+        }
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+            }
+            nav ul {
+                margin-top: 10px;
+            }
+            nav ul li {
+                margin-left: 0;
+                margin-right: 20px;
+            }
+            #hero h1 {
+                font-size: 2rem;
+            }
+            h2 {
+                font-size: 2rem;
+            }
+            .section-content {
+                padding: 20px;
+            }
+        }
+
+        /* AI-like particle effects */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 123, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(255, 0, 150, 0.1) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(120deg); }
+            66% { transform: translateY(10px) rotate(240deg); }
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #00d4ff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00d4ff;
+            animation: particleMove 15s linear infinite;
+        }
+
+        .particle:nth-child(odd) {
+            animation-duration: 20s;
+            animation-delay: -5s;
+        }
+
+        .particle:nth-child(3n) {
+            animation-duration: 25s;
+            animation-delay: -10s;
+        }
+
+        @keyframes particleMove {
+            0% { transform: translateY(100vh) translateX(0px); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) translateX(100px); opacity: 0; }
+        }
+
+        .glow-border {
+            position: relative;
+        }
+
+        .glow-border::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00d4ff, #007bff, #ff0096, #00d4ff);
+            background-size: 400% 400%;
+            border-radius: 15px;
+            z-index: -1;
+            animation: glow 4s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .ai-text {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-text::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.4), transparent);
+            animation: scan 3s ease-in-out infinite;
+        }
+
+        .ai-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #00d4ff, #007bff);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            margin-top: 10px;
+            box-shadow: 0 2px 5px rgba(0, 212, 255, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .ai-typing {
+            border-right: 2px solid #00d4ff;
+            animation: blink 1s infinite;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 0;
+            animation: typing 3s steps(40, end) forwards, blink 1s infinite;
+        }
+
+        @keyframes typing {
+            to { width: 100%; }
+        }
+
+        .ai-processing {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .ai-processing span:nth-child(1),
+        .ai-processing span:nth-child(2),
+        .ai-processing span:nth-child(3) {
+            width: 8px;
+            height: 8px;
+            background: #00d4ff;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: bounce 1.4s ease-in-out infinite both;
+        }
+
+        .ai-processing span:nth-child(1) { animation-delay: -0.32s; }
+        .ai-processing span:nth-child(2) { animation-delay: -0.16s; }
+        .ai-processing span:nth-child(4) {
+            margin-left: 10px;
+            font-size: 0.8em;
+            color: #b0b0b0;
+        }
+
+        .ai-watermark {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #b0b0b0;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 0.7em;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .ai-assistant {
+            position: fixed;
+            bottom: 70px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #00d4ff, #007bff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 212, 255, 0.3);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .ai-assistant:hover {
+            transform: scale(1.1);
+        }
+
+        .ai-tooltip {
+            position: absolute;
+            bottom: 60px;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .ai-assistant:hover .ai-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .ai-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .ai-modal-content {
+            background: rgba(26, 26, 46, 0.95);
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #00d4ff;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+            color: #e0e0e0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .ai-close {
+            color: #b0b0b0;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .ai-close:hover {
+            color: #00d4ff;
+        }
+    </style>
+</head>
+<body>
+    <!-- AI Particles -->
+    <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+    <div class="particle" style="left: 20%; animation-delay: 2s;"></div>
+    <div class="particle" style="left: 30%; animation-delay: 4s;"></div>
+    <div class="particle" style="left: 40%; animation-delay: 6s;"></div>
+    <div class="particle" style="left: 50%; animation-delay: 8s;"></div>
+    <div class="particle" style="left: 60%; animation-delay: 10s;"></div>
+    <div class="particle" style="left: 70%; animation-delay: 12s;"></div>
+    <div class="particle" style="left: 80%; animation-delay: 14s;"></div>
+    <div class="particle" style="left: 90%; animation-delay: 16s;"></div>
+    
+    <!-- Decorative AI Icons -->
+    <i class="fas fa-brain" style="position: fixed; top: 10%; left: 5%; opacity: 0.05; font-size: 4em; z-index: -1;"></i>
+    <i class="fas fa-robot" style="position: fixed; top: 60%; right: 5%; opacity: 0.05; font-size: 3em; z-index: -1;"></i>
+    <i class="fas fa-cogs" style="position: fixed; bottom: 20%; left: 10%; opacity: 0.05; font-size: 2em; z-index: -1;"></i>
+    <i class="fas fa-microchip" style="position: fixed; top: 30%; right: 10%; opacity: 0.05; font-size: 3.5em; z-index: -1;"></i>
+    
+    <!-- AI Generated Watermark -->
+    <div class="ai-watermark">
+        <i class="fas fa-magic"></i> AI Generated
+    </div>
+    
+    <!-- Floating AI Assistant -->
+    <div class="ai-assistant" onclick="showAIHelp()">
+        <i class="fas fa-robot"></i>
+        <div class="ai-tooltip">AI Assistant</div>
+    </div>
+    
+    <!-- AI Help Modal -->
+    <div id="ai-modal" class="ai-modal">
+        <div class="ai-modal-content">
+            <span class="ai-close" onclick="closeAIHelp()">&times;</span>
+            <h3><i class="fas fa-brain"></i> AI Assistant</h3>
+            <p>This portfolio was intelligently crafted using advanced AI algorithms to showcase cutting-edge technology and innovative design patterns.</p>
+            <p>Key features include:</p>
+            <ul>
+                <li>Neural network-inspired animations</li>
+                <li>AI-generated content optimization</li>
+                <li>Machine learning-enhanced user experience</li>
+                <li>Autonomous design adaptation</li>
+            </ul>
+        </div>
+    </div>
+    <header>
+        <nav>
+            <h1>{% if profile %}{{ profile.name }}{% else %}AI Portfolio{% endif %}</h1>
+            <ul>
+                <li><a href="#about">About</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#experience">Experience</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="hero">
+        {% if profile and profile.profile_image %}
+            <img src="{{ profile.profile_image.url }}" alt="Profile Picture">
+        {% else %}
+            <img src="{% static 'resume/images/AI.jpeg' %}" alt="Profile Picture">
+        {% endif %}
+            <h1>{% if profile %}{{ profile.name }}{% else %}AI Portfolio{% endif %} <i class="fas fa-brain" style="font-size: 0.8em; color: #00d4ff;"></i></h1>
+        <p>{% if profile %}{{ profile.title }}{% else %}AI & Machine Learning Engineer{% endif %}</p>
+        <div class="ai-processing">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span>AI Processing...</span>
+        </div>
+    </section>
+
+    <section id="about">
+        <h2 class="ai-text">About Me</h2>
+        <div class="section-content glow-border">
+            <p class="ai-typing">{% if profile %}{{ profile.bio }}{% else %}As an AI-driven developer, I leverage cutting-edge machine learning algorithms and neural network architectures to solve complex problems. My expertise spans deep learning frameworks, natural language processing, and computer vision applications, creating intelligent systems that adapt and learn autonomously.{% endif %}</p>
+            <div class="ai-badge">
+                <i class="fas fa-robot"></i> AI-Generated Content
+            </div>
+        </div>
+    </section>
+
+    <section id="skills">
+        <h2 class="ai-text">Skills</h2>
+        <div class="section-content glow-border">
+            <div class="skill-list">
+                {% for skill in skills %}
+                    <span class="skill">
+                        {% if skill.name == 'Machine Learning' %}<i class="fas fa-brain"></i>{% endif %}
+                        {% if skill.name == 'Deep Learning' %}<i class="fas fa-network-wired"></i>{% endif %}
+                        {% if skill.name == 'Python' %}<i class="fab fa-python"></i>{% endif %}
+                        {% if skill.name == 'TensorFlow' %}<i class="fas fa-cubes"></i>{% endif %}
+                        {% if skill.name == 'PyTorch' %}<i class="fas fa-fire"></i>{% endif %}
+                        {% if skill.name == 'NLP' %}<i class="fas fa-comments"></i>{% endif %}
+                        {% if skill.name == 'Computer Vision' %}<i class="fas fa-eye"></i>{% endif %}
+                        {% if skill.name == 'JavaScript' %}<i class="fab fa-js-square"></i>{% endif %}
+                        {% if skill.name == 'HTML/CSS' %}<i class="fab fa-html5"></i>{% endif %}
+                        {% if skill.name == 'React' %}<i class="fab fa-react"></i>{% endif %}
+                        {% if skill.name == 'Django' %}<i class="fas fa-cogs"></i>{% endif %}
+                        {{ skill.name }} ({{ skill.level }})
+                    </span>
+                {% empty %}
+                    <span class="skill"><i class="fab fa-html5"></i> HTML</span>
+                    <span class="skill"><i class="fab fa-css3-alt"></i> CSS</span>
+                    <span class="skill"><i class="fab fa-js-square"></i> JavaScript</span>
+                    <span class="skill"><i class="fab fa-python"></i> Python</span>
+                    <span class="skill"><i class="fab fa-react"></i> React</span>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <section id="experience">
+        <h2 class="ai-text">Work Experience</h2>
+        <div class="section-content glow-border">
+            {% for exp in experiences %}
+                <div class="experience-item">
+                    <h3>{{ exp.job_title }}</h3>
+                    <p>{{ exp.company }} | {{ exp.start_date }}{% if exp.end_date %} - {{ exp.end_date }}{% endif %}</p>
+                    <p>{{ exp.description }}</p>
+                </div>
+            {% empty %}
+                <div class="experience-item">
+                    <h3>Job Title</h3>
+                    <p>Company Name | Dates</p>
+                    <p>Description of your role and achievements.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section id="projects">
+        <h2 class="ai-text">Projects</h2>
+        <div class="section-content glow-border">
+            {% for proj in projects %}
+                <div class="project-item">
+                    <h3>{{ proj.title }}</h3>
+                    <p>{{ proj.description }}</p>
+                    {% if proj.url %}<a href="{{ proj.url }}">View Project</a>{% endif %}
+                </div>
+            {% empty %}
+                <div class="project-item">
+                    <h3>Project Name</h3>
+                    <p>Description of the project.</p>
+                    <a href="#">View Project</a>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section id="contact">
+        <h2 class="ai-text">Contact</h2>
+        <div class="section-content glow-border">
+            {% if profile %}
+                <p>Email: {{ profile.email }}</p>
+                {% if profile.linkedin %}<p>LinkedIn: <a href="{{ profile.linkedin }}">Your LinkedIn</a></p>{% endif %}
+                {% if profile.github %}<p>GitHub: <a href="{{ profile.github }}">Your GitHub</a></p>{% endif %}
+            {% else %}
+                <p>Email: your.email@example.com</p>
+                <p>LinkedIn: <a href="#">Your LinkedIn</a></p>
+                <p>GitHub: <a href="#">Your GitHub</a></p>
+            {% endif %}
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; {% now "Y" %} {% if profile %}{{ profile.name }}{% else %}AI Developer{% endif %}. All rights reserved. | Powered by AI <i class="fas fa-robot"></i></p>
+    </footer>
+
+    <script>
+        function showAIHelp() {
+            document.getElementById('ai-modal').style.display = 'block';
+        }
+
+        function closeAIHelp() {
+            document.getElementById('ai-modal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            var modal = document.getElementById('ai-modal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
